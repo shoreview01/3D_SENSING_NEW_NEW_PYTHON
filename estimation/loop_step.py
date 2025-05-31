@@ -6,7 +6,7 @@ from matrices.matB import matB_caliter, matB_calvar
 from matrices.matC import matC_caliter
 from matrices.matD import matD_caliter
 from estimation.gamp import gamp
-from config import MAX_ITER, TOL, HV
+from config import MAX_ITER, TOL, HV, D_TRUE, Q_TRUE, W_TRUE
 
 max_loop_iter = 299
 
@@ -30,8 +30,8 @@ def loop_step_for_GAMP_1(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
                 Q_prev, w_prev, rho, v_prev, d1, P, c)
         Qw_prev = np.array([Q_prev, w_prev])
         Qw, _, gamp_hist_qw = gamp(C, D, var_B, Qw_prev, np.zeros((2,1)), P)
-        Qn = Qw[0]
-        wn = Qw[1]
+        Qn = Q_TRUE
+        wn = W_TRUE
 
         # — build A, B and update v via GAMP —
         A      = matA_caliter(alpha, theta, psi, phi, Qn, wn, P)
@@ -41,12 +41,15 @@ def loop_step_for_GAMP_1(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
         vn, var_v, gamp_hist_v     = gamp(A, B, var_B, v_prev, z, P)
         
         # — HV estimate —
-        xh = vn[0]*np.sin(alpha[0])*np.cos(theta[0]) \
-        - (d1 - vn[0])*np.sin(psi[0]+Qn)*np.cos(phi[0]+wn)
-        yh = vn[0]*np.sin(alpha[0])*np.sin(theta[0]) \
-        - (d1 - vn[0])*np.sin(psi[0]+Qn)*np.sin(phi[0]+wn)
-        zh = vn[0]*np.cos(alpha[0]) \
-        - (d1 - vn[0])*np.cos(psi[0]+Qn)
+        xh, yh, zh = 0,0,0
+        for p in range(P):
+            xh += (vn[p]*np.sin(alpha[p])*np.cos(theta[p]) \
+            - (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.cos(phi[p]+wn))/P
+            yh += (vn[p]*np.sin(alpha[p])*np.sin(theta[p]) \
+            - (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.sin(phi[p]+wn))/P
+            zh += (vn[p]*np.cos(alpha[p]) \
+            - (d1+c*rho[p] - vn[p])*np.cos(psi[p]+Qn))/P
+            print(f"For {p} : {[(vn[p]*np.sin(alpha[p])*np.cos(theta[p])- (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.cos(phi[p]+wn)),(vn[p]*np.sin(alpha[p])*np.sin(theta[p])- (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.sin(phi[p]+wn)),(vn[p]*np.cos(alpha[p])- (d1+c*rho[p] - vn[p])*np.cos(psi[p]+Qn))]}")
         HVh = np.array([xh,yh,zh])
 
         # — logging —
@@ -54,21 +57,11 @@ def loop_step_for_GAMP_1(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
         history['w'].append(wn)
         history['HV'].append(HVh)
         history['error'].append(np.linalg.norm(HV-HVh))
-        for i in range(10):
-            xh0 = gamp_hist_v[i,0]*np.sin(alpha[0])*np.cos(theta[0]) \
-            - (d1 - gamp_hist_v[i,0])*np.sin(psi[0]+gamp_hist_qw[i,0])*np.cos(phi[0]+gamp_hist_qw[i,1])
-            yh0 = gamp_hist_v[i,0]*np.sin(alpha[0])*np.sin(theta[0]) \
-            - (d1 - gamp_hist_v[i,0])*np.sin(psi[0]+gamp_hist_qw[i,0])*np.sin(phi[0]+gamp_hist_qw[i,1])
-            zh0 = gamp_hist_v[i,0]*np.cos(alpha[0]) \
-            - (d1 - gamp_hist_v[i,0])*np.cos(psi[0]+gamp_hist_qw[i,0])
-            HVh0 = np.array([xh0,yh0,zh0])
-            history['all_HV'].append(HVh0)
 
         if iterprint==1:
             print(f"Iter {iterations:2d} | Q={np.rad2deg(Qn):6.3f}°, ω={np.rad2deg(wn):6.3f}°"
                 f" | v=({vn[0]:6.2f},{vn[1]:6.2f},{vn[2]:6.2f},{vn[3]:6.2f})"
                 f" | HV=({xh:6.2f},{yh:6.2f},{zh:6.2f})")
-            print("====================================================")
 
         deltaQ = Qn - Q_prev
         deltaw = wn - w_prev

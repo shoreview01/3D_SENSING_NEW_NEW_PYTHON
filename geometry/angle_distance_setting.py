@@ -30,8 +30,9 @@ def angle_dist_setting(SV, HV, SCATTERERS, c, Q_true, w_true):
 
     # distances
     v = np.linalg.norm(sc - SV, axis=1)
-    d_true = v + np.linalg.norm(sc - HV, axis=1)
-
+    d_v = np.linalg.norm(sc-HV, axis=1)
+    d_true = v + d_v
+    print(d_v)
     # reorder by increasing total distance
     order = np.argsort(d_true)
     sc = sc[order]
