@@ -30,8 +30,8 @@ def loop_step_for_GAMP_1(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
                 Q_prev, w_prev, rho, v_prev, d1, P, c)
         Qw_prev = np.array([Q_prev, w_prev])
         Qw, _, gamp_hist_qw = gamp(C, D, var_B, Qw_prev, np.zeros((2,1)), P)
-        Qn = Q_TRUE
-        wn = W_TRUE
+        Qn = Qw[0]
+        wn = Qw[1]
 
         # — build A, B and update v via GAMP —
         A      = matA_caliter(alpha, theta, psi, phi, Qn, wn, P)
@@ -49,7 +49,6 @@ def loop_step_for_GAMP_1(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
             - (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.sin(phi[p]+wn))/P
             zh += (vn[p]*np.cos(alpha[p]) \
             - (d1+c*rho[p] - vn[p])*np.cos(psi[p]+Qn))/P
-            print(f"For {p} : {[(vn[p]*np.sin(alpha[p])*np.cos(theta[p])- (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.cos(phi[p]+wn)),(vn[p]*np.sin(alpha[p])*np.sin(theta[p])- (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.sin(phi[p]+wn)),(vn[p]*np.cos(alpha[p])- (d1+c*rho[p] - vn[p])*np.cos(psi[p]+Qn))]}")
         HVh = np.array([xh,yh,zh])
 
         # — logging —
@@ -116,12 +115,14 @@ def loop_step_for_GAMP_2(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
         vn = xn[2:]
         
         # — HV estimate —
-        xh = vn[0]*np.sin(alpha[0])*np.cos(theta[0]) \
-        - (d1 - vn[0])*np.sin(psi[0]+Qn)*np.cos(phi[0]+wn)
-        yh = vn[0]*np.sin(alpha[0])*np.sin(theta[0]) \
-        - (d1 - vn[0])*np.sin(psi[0]+Qn)*np.sin(phi[0]+wn)
-        zh = vn[0]*np.cos(alpha[0]) \
-        - (d1 - vn[0])*np.cos(psi[0]+Qn)
+        xh, yh, zh = 0,0,0
+        for p in range(P):
+            xh += (vn[p]*np.sin(alpha[p])*np.cos(theta[p]) \
+            - (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.cos(phi[p]+wn))/P
+            yh += (vn[p]*np.sin(alpha[p])*np.sin(theta[p]) \
+            - (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.sin(phi[p]+wn))/P
+            zh += (vn[p]*np.cos(alpha[p]) \
+            - (d1+c*rho[p] - vn[p])*np.cos(psi[p]+Qn))/P
         HVh = np.array([xh,yh,zh])
 
         # — logging —
@@ -133,7 +134,7 @@ def loop_step_for_GAMP_2(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
         if iterprint==1:
             print(f"Iter {iterations:2d} | Q={np.rad2deg(Qn):6.3f}°, ω={np.rad2deg(wn):6.3f}°"
                 f" | HV=({xh:6.2f},{yh:6.2f},{zh:6.2f})")
-            print("====================================================")
+            
 
         deltaQ = Qn - Q_prev
         deltaw = wn - w_prev

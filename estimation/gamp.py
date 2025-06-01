@@ -1,6 +1,6 @@
 import numpy as np
 
-def gamp(A, B, var_B, x_prev, z_true, P, max_iter=10):
+def gamp(A, B, var_B, x_prev, z_true, P, max_iter=5):
     """
     Generalized AMP for solving A x = B with variances var_B.
     Args:

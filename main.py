@@ -1,8 +1,11 @@
 # main.py
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import cm
 import config
-from model import model1
+from plot_2 import plot_3d
+from model import model1, model2
 from geometry.angle_distance_setting import angle_dist_setting
 from estimation.initial_step     import initial_step_for_1, initial_step_for_2
 from estimation.loop_step        import loop_step_for_GAMP_1, loop_step_for_GAMP_2, loop_step_for_inverse_1, loop_step_for_inverse_2
@@ -13,49 +16,58 @@ def main():
     c = config.SPEED_OF_LIGHT
     P = config.P
 
-    v_true, d_true, sc, alpha, theta, psi, phi, tdoa, var_tdoa, rho \
-        = angle_dist_setting(config.SV, config.HV, config.SCATTERERS,
-                            c, config.Q_TRUE, config.W_TRUE)
-
-    # store D1 if you need it (distance of first path)
-    config.D_TRUE.append(d_true)
-    config.D1 = d_true[0]
-    d1 = config.D1
-    
+    error = []
+    minx = 5
+    maxx = 25
+    miny = -30
+    maxy = -5
     # GAMP 1
-    history_1, elasped_loop_1, iterations_1 = model1(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=1)
-    print(np.cos(psi+config.Q_TRUE))
-    print(np.sin(psi+config.Q_TRUE))
-    print(np.cos(phi+config.W_TRUE))
-    print(np.sin(phi+config.W_TRUE))
-    '''# GAMP 2
-    history_1, elasped_loop_1, iterations_1 = model2(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=0)'''
+    for x in range(minx,maxx+1,1):
+        for y in range(maxy,miny-1,-1):
+            config.HV = [x,y,2.0]
+            v_true, d_true, sc, alpha, theta, psi, phi, tdoa, var_tdoa, rho \
+                = angle_dist_setting(config.SV, config.HV, config.SCATTERERS,
+                                    c, config.Q_TRUE, config.W_TRUE)
+
+            # store D1 if you need it (distance of first path)
+            config.D_TRUE.append(d_true)
+            config.D1 = d_true[0]
+            d1 = config.D1
+
+            history_1, elasped_loop_1, iterations_1 = model1(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=0)
+            error.append([x, y, np.linalg.norm(config.HV-history_1['HV'][-1])])
+    print("====================================================")
+
+    # GAMP 2
+    #history_2, elasped_loop_2, iterations_2 = model2(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=1)
+    plt.plot([err[2] for err in error])
+    plot_3d(sc, history_1)
     
-    # Results        
-    fig = plt.figure(figsize=(7,7))
-    # — 3D scene —
-    ax = fig.add_subplot(projection='3d')
-    lim = np.max(np.abs(np.vstack([config.SV, config.HV, sc]))) * 1.2
-    xs = np.linspace(-10, lim, 2)
-    ys = np.linspace(-lim, lim, 2)
-    Xs, Ys = np.meshgrid(xs, ys)
-    Zs = np.zeros_like(Xs)
-    ax.plot_surface(
-        Xs, Ys, Zs,
-        color='gray', alpha=0.3,
-        edgecolor='none', shade=True
-    )
-    ax.scatter(*config.SV, c='r', label='SV')
-    ax.scatter(*config.HV, c='k', label='true HV')
-    ax.scatter(*history_1['HV'][-1], c='r', label='est HV')
-    for s in sc:
-        ax.scatter(*s, c='b', marker='x')
-    est = np.array(history_1['all_HV'])
-    est2 = np.array(history_1['HV'])
-    ax.plot(est2[:,0], est2[:,1], est2[:,2], c='r', label='est path')
-    ax.legend()
+    #plot_3d(sc, history_2)
+    # Sample data
+    x = np.array([a for a in range(minx,maxx+1,1)])
+    y = np.array([b for b in range(maxy,miny-1,-1)])
+    xpos, ypos = np.meshgrid(x, y, indexing="ij")
+    xpos = xpos.flatten()
+    ypos = ypos.flatten()
+    zpos = np.zeros_like(xpos)
+
+    dx = dy = 0.5
+    dz = np.array([row[2] for row in error])
+
+    norm = plt.Normalize(dz.min(), dz.max())
+    colors = cm.summer(norm(dz))  # or use 'plasma', 'inferno', etc.
+
+
+    # Plotting
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color=colors)
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Error (m)')
+    ax.set_title("Error per HV Position")
     plt.show()
-        
-    
 if __name__ == '__main__':
     main()
