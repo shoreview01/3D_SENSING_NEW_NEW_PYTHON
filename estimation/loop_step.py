@@ -150,7 +150,7 @@ def loop_step_for_GAMP_2(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
     elasped_gamp_2 = end - start
     iterations = len(history['Q'])
     
-    return history, elasped_gamp_2, iterations
+    return history, elasped_gamp_2, iterations, M, G
 
 def loop_step_for_inverse_1(Q0, w0, v0, TOL, alpha, theta, psi, phi, rho, d1, P, c, iterprint):
     Q_prev, w_prev, v_prev = Q0, w0, v0

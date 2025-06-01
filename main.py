@@ -15,14 +15,21 @@ from utils.printing              import print_results
 def main():
     c = config.SPEED_OF_LIGHT
     P = config.P
-
+    v_true, d_true, sc, alpha, theta, psi, phi, tdoa, var_tdoa, rho \
+                = angle_dist_setting(config.SV, config.HV, config.SCATTERERS,
+                                    c, config.Q_TRUE, config.W_TRUE)
+    # store D1 if you need it (distance of first path)
+    config.D_TRUE.append(d_true)
+    config.D1 = d_true[0]
+    d1 = config.D1
+    
     error = []
     minx = 5
     maxx = 25
     miny = -30
     maxy = -5
     # GAMP 1
-    for x in range(minx,maxx+1,1):
+    '''for x in range(minx,maxx+1,1):
         for y in range(maxy,miny-1,-1):
             config.HV = [x,y,2.0]
             v_true, d_true, sc, alpha, theta, psi, phi, tdoa, var_tdoa, rho \
@@ -36,16 +43,15 @@ def main():
 
             history_1, elasped_loop_1, iterations_1 = model1(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=0)
             error.append([x, y, np.linalg.norm(config.HV-history_1['HV'][-1])])
-    print("====================================================")
+    print("====================================================")'''
 
     # GAMP 2
-    #history_2, elasped_loop_2, iterations_2 = model2(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=1)
-    plt.plot([err[2] for err in error])
-    plot_3d(sc, history_1)
+    history_2, elasped_loop_2, iterations_2 = model2(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=1)
+    
     
     #plot_3d(sc, history_2)
     # Sample data
-    x = np.array([a for a in range(minx,maxx+1,1)])
+    '''x = np.array([a for a in range(minx,maxx+1,1)])
     y = np.array([b for b in range(maxy,miny-1,-1)])
     xpos, ypos = np.meshgrid(x, y, indexing="ij")
     xpos = xpos.flatten()
@@ -67,7 +73,31 @@ def main():
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Error (m)')
-    ax.set_title("Error per HV Position")
+    ax.set_title("Error per HV Position")'''
+    # 1. X, Y 생성 (기존과 동일)
+    x = np.array([a for a in range(minx, maxx + 1, 1)])
+    y = np.array([b for b in range(maxy, miny - 1, -1)])
+
+    # 2. Z 값 재구성: dz 리스트를 2D 배열로 변환 (주의!)
+    dz = np.array([row[2] for row in error])
+    Z = dz.reshape(len(x), len(y))  # x는 행방향, y는 열방향
+
+    # 3. meshgrid 생성
+    X, Y = np.meshgrid(x, y, indexing='ij')  # indexing='ij'는 x가 행, y가 열
+
+    # 4. Surface plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    surf = ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none')
+
+    # 5. 레이블 및 타이틀
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Error (m)')
+    ax.set_title('Error per HV Position')
+
+    # 6. Color bar
+    fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10)
     plt.show()
 if __name__ == '__main__':
     main()

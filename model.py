@@ -12,5 +12,5 @@ def model1(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint):
 
 def model2(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint):
     Q0_2, w0_2, v0_2, var_B_2, elasped_init_2 = initial_step_for_2(psi, phi, var_tdoa, rho, d1, P, c)
-    history_2, elasped_loop_2, iterations_2 = loop_step_for_GAMP_2(Q0_2, w0_2, v0_2, var_B_2, config.TOL, alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint)
-    return history_2, elasped_loop_2, iterations_2
+    history_2, elasped_loop_2, iterations_2, M, G = loop_step_for_GAMP_2(Q0_2, w0_2, v0_2, var_B_2, config.TOL, alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint)
+    return history_2, elasped_loop_2, iterations_2, M, G
