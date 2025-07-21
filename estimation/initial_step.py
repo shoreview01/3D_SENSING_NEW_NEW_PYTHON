@@ -1,6 +1,6 @@
 import numpy as np
 import time
-import config
+import config_SC
 from matrices.matA import matA_caliter
 from matrices.matB import matB_caliter, matB_calvar
 from estimation.gamp import gamp

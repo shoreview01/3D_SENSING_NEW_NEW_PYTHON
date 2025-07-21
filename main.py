@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
-import config
+import config_SC
 from plot_2 import plot_3d
 from model import model1, model2
 from geometry.angle_distance_setting import angle_dist_setting
@@ -13,15 +13,15 @@ from utils.plotting              import plot_results, plot_coordinates_estimate_
 from utils.printing              import print_results
 
 def main():
-    c = config.SPEED_OF_LIGHT
-    P = config.P
+    c = config_SC.SPEED_OF_LIGHT
+    P = config_SC.P
     v_true, d_true, sc, alpha, theta, psi, phi, tdoa, var_tdoa, rho \
-                = angle_dist_setting(config.SV, config.HV, config.SCATTERERS,
-                                    c, config.Q_TRUE, config.W_TRUE)
+                = angle_dist_setting(config_SC.SV, config_SC.HV, config_SC.SCATTERERS,
+                                    c, config_SC.Q_TRUE, config_SC.W_TRUE)
     # store D1 if you need it (distance of first path)
-    config.D_TRUE.append(d_true)
-    config.D1 = d_true[0]
-    d1 = config.D1
+    config_SC.D_TRUE.append(d_true)
+    config_SC.D1 = d_true[0]
+    d1 = config_SC.D1
     
     error = []
     minx = 5
@@ -29,29 +29,29 @@ def main():
     miny = -30
     maxy = -5
     # GAMP 1
-    '''for x in range(minx,maxx+1,1):
+    for x in range(minx,maxx+1,1):
         for y in range(maxy,miny-1,-1):
-            config.HV = [x,y,2.0]
+            config_SC.HV = [x,y,2.0]
             v_true, d_true, sc, alpha, theta, psi, phi, tdoa, var_tdoa, rho \
-                = angle_dist_setting(config.SV, config.HV, config.SCATTERERS,
-                                    c, config.Q_TRUE, config.W_TRUE)
+                = angle_dist_setting(config_SC.SV, config_SC.HV, config_SC.SCATTERERS,
+                                    c, config_SC.Q_TRUE, config_SC.W_TRUE)
 
             # store D1 if you need it (distance of first path)
-            config.D_TRUE.append(d_true)
-            config.D1 = d_true[0]
-            d1 = config.D1
+            config_SC.D_TRUE.append(d_true)
+            config_SC.D1 = d_true[0]
+            d1 = config_SC.D1
 
             history_1, elasped_loop_1, iterations_1 = model1(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=0)
-            error.append([x, y, np.linalg.norm(config.HV-history_1['HV'][-1])])
-    print("====================================================")'''
+            error.append([x, y, np.linalg.norm(config_SC.HV-history_1['HV'][-1])])
+    print("====================================================")
 
     # GAMP 2
-    history_2, elasped_loop_2, iterations_2 = model2(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=1)
+    #history_2, elasped_loop_2, iterations_2, _, _ = model2(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=1)
     
     
     #plot_3d(sc, history_2)
     # Sample data
-    '''x = np.array([a for a in range(minx,maxx+1,1)])
+    x = np.array([a for a in range(minx,maxx+1,1)])
     y = np.array([b for b in range(maxy,miny-1,-1)])
     xpos, ypos = np.meshgrid(x, y, indexing="ij")
     xpos = xpos.flatten()
@@ -73,8 +73,8 @@ def main():
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Error (m)')
-    ax.set_title("Error per HV Position")'''
-    # 1. X, Y 생성 (기존과 동일)
+    ax.set_title("Error per HV Position")
+    '''# 1. X, Y 생성 (기존과 동일)
     x = np.array([a for a in range(minx, maxx + 1, 1)])
     y = np.array([b for b in range(maxy, miny - 1, -1)])
 
@@ -98,6 +98,6 @@ def main():
 
     # 6. Color bar
     fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10)
-    plt.show()
+    plt.show()'''
 if __name__ == '__main__':
     main()

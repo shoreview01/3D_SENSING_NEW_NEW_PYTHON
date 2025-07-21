@@ -6,7 +6,7 @@ from matrices.matB import matB_caliter, matB_calvar
 from matrices.matC import matC_caliter
 from matrices.matD import matD_caliter
 from estimation.gamp import gamp
-from config import MAX_ITER, TOL, HV, D_TRUE, Q_TRUE, W_TRUE
+from config_SC import MAX_ITER, TOL, HV, D_TRUE, Q_TRUE, W_TRUE
 
 max_loop_iter = 299
 

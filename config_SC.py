@@ -24,7 +24,7 @@ HV = [20.0, -15.0, 2.0]  # true hidden vehicle coordinates
 SCATTERERS = [
     [10.0, 0.0, 5 + 4*np.random.rand()],
     [17.5, 0.0, 5 + 4*np.random.rand()],
-    [17.5, 10.0, 5 + 4*np.random.rand()],
+    [17.5, .0, 5 + 4*np.random.rand()],
     [10.0, 10.0, 5 + 4*np.random.rand()]
 ]
 
