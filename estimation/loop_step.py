@@ -8,7 +8,7 @@ from matrices.matD import matD_caliter
 from estimation.gamp import gamp
 from config_SC import MAX_ITER, TOL, HV, D_TRUE, Q_TRUE, W_TRUE
 
-max_loop_iter = 299
+max_loop_iter = 1000
 
 def loop_step_for_GAMP_1(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint):
     Q_prev, w_prev, v_prev = Q0, w0, v0
@@ -43,11 +43,11 @@ def loop_step_for_GAMP_1(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
         # — HV estimate —
         xh, yh, zh = 0,0,0
         for p in range(P):
-            xh += (vn[p]*np.sin(alpha[p])*np.cos(theta[p]) \
+            xh += (vn[p]*np.sin(theta[p])*np.cos(alpha[p]) \
             - (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.cos(phi[p]+wn))/P
-            yh += (vn[p]*np.sin(alpha[p])*np.sin(theta[p]) \
+            yh += (vn[p]*np.sin(theta[p])*np.sin(alpha[p]) \
             - (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.sin(phi[p]+wn))/P
-            zh += (vn[p]*np.cos(alpha[p]) \
+            zh += (vn[p]*np.cos(theta[p]) \
             - (d1+c*rho[p] - vn[p])*np.cos(psi[p]+Qn))/P
         HVh = np.array([xh,yh,zh])
 
@@ -117,11 +117,11 @@ def loop_step_for_GAMP_2(Q0, w0, v0, var_B, TOL, alpha, theta, psi, phi, tdoa, v
         # — HV estimate —
         xh, yh, zh = 0,0,0
         for p in range(P):
-            xh += (vn[p]*np.sin(alpha[p])*np.cos(theta[p]) \
+            xh += (vn[p]*np.sin(theta[p])*np.cos(alpha[p]) \
             - (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.cos(phi[p]+wn))/P
-            yh += (vn[p]*np.sin(alpha[p])*np.sin(theta[p]) \
+            yh += (vn[p]*np.sin(theta[p])*np.sin(alpha[p]) \
             - (d1+c*rho[p] - vn[p])*np.sin(psi[p]+Qn)*np.sin(phi[p]+wn))/P
-            zh += (vn[p]*np.cos(alpha[p]) \
+            zh += (vn[p]*np.cos(theta[p]) \
             - (d1+c*rho[p] - vn[p])*np.cos(psi[p]+Qn))/P
         HVh = np.array([xh,yh,zh])
 
@@ -180,11 +180,11 @@ def loop_step_for_inverse_1(Q0, w0, v0, TOL, alpha, theta, psi, phi, rho, d1, P,
         vn = np.linalg.pinv(A) @ B
         
         # — HV estimate —
-        xh = vn[0]*np.sin(alpha[0])*np.cos(theta[0]) \
+        xh = vn[0]*np.sin(theta[0])*np.cos(alpha[0]) \
         - (d1 - vn[0])*np.sin(psi[0]+Qn)*np.cos(phi[0]+wn)
-        yh = vn[0]*np.sin(alpha[0])*np.sin(theta[0]) \
+        yh = vn[0]*np.sin(theta[0])*np.sin(alpha[0]) \
         - (d1 - vn[0])*np.sin(psi[0]+Qn)*np.sin(phi[0]+wn)
-        zh = vn[0]*np.cos(alpha[0]) \
+        zh = vn[0]*np.cos(theta[0]) \
         - (d1 - vn[0])*np.cos(psi[0]+Qn)
         HVh = np.array([xh,yh,zh])
 
@@ -252,11 +252,11 @@ def loop_step_for_inverse_2(Q0, w0, v0, TOL, alpha, theta, psi, phi, tdoa, var_t
         vn = xn[2:]
         
         # — HV estimate —
-        xh = vn[0]*np.sin(alpha[0])*np.cos(theta[0]) \
+        xh = vn[0]*np.sin(theta[0])*np.cos(alpha[0]) \
         - (d1 - vn[0])*np.sin(psi[0]+Qn)*np.cos(phi[0]+wn)
-        yh = vn[0]*np.sin(alpha[0])*np.sin(theta[0]) \
+        yh = vn[0]*np.sin(theta[0])*np.sin(alpha[0]) \
         - (d1 - vn[0])*np.sin(psi[0]+Qn)*np.sin(phi[0]+wn)
-        zh = vn[0]*np.cos(alpha[0]) \
+        zh = vn[0]*np.cos(theta[0]) \
         - (d1 - vn[0])*np.cos(psi[0]+Qn)
         HVh = np.array([xh,yh,zh])
 

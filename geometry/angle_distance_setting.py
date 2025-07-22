@@ -15,8 +15,8 @@ def angle_dist_setting(SV, HV, SCATTERERS, c, Q_true, w_true):
         v: (P,) path lengths SV->scatterer
         d_true: (P,) total distances SV->scatterer->HV
         sc: scatterer list reordered by total distance
-        alpha: (P,) AoA elevation angles
-        theta: (P,) AoA azimuth angles
+        alpha: (P,) AoA azimuth angles
+        theta: (P,) AoA elevation angles
         psi: (P,) AoD elevation minus Q_true
         phi: (P,) AoD azimuth minus w_true
         tdoa: (P,) true time difference of arrival
@@ -40,10 +40,10 @@ def angle_dist_setting(SV, HV, SCATTERERS, c, Q_true, w_true):
     d_true = d_true[order]
 
     # angles
-    # AoA elevation alpha, AoA azimuth theta
-    alpha = np.arctan2(np.linalg.norm(sc[:,:2], axis=1), sc[:,2])
-    theta = np.arctan2(sc[:,1] - SV[1], sc[:,0] - SV[0])
-
+    # AoA azimuth alpha, AoA elevation theta
+    alpha = np.arctan2(sc[:,1] - SV[1], sc[:,0] - SV[0])
+    theta = np.arctan2(np.linalg.norm(sc[:,:2], axis=1), sc[:,2])
+    
     # AoD elevation psi, AoD azimuth phi
     rel = sc - HV
     psi = np.arctan2(np.linalg.norm(rel[:,:2], axis=1), rel[:,2]) - Q_true

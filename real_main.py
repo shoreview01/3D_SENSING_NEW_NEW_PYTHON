@@ -6,6 +6,7 @@ import config_SC
 from plot_2 import plot_3d
 from model import model1, model2
 from geometry.angle_distance_setting import angle_dist_setting
+from utils.plotting import plot_results
 
 def main():
     c = config_SC.SPEED_OF_LIGHT
@@ -17,11 +18,18 @@ def main():
     config_SC.D_TRUE.append(d_true)
     config_SC.D1 = d_true[0]
     d1 = config_SC.D1
-    
+    d1 = np.linalg.norm(config_SC.HV)
+    '''alpha[0] = np.arccos(np.dot(np.array([1,0,0]), np.array([config_SC.HV[0],config_SC.HV[1],0])) / (1 * np.linalg.norm(config_SC.HV[:2])))
+    print("alpha:", np.rad2deg(alpha))
+    theta[0] = np.arccos(np.dot(np.array([0,0,1]), config_SC.HV) / (1 * np.linalg.norm(config_SC.HV)))
+    print("theta:", np.rad2deg(theta))'''
     history_1, elasped_loop_1, iterations_1 = model1(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=1)
     print("=====================================================")
-    history_2, elasped_loop_2, iterations_2, M, G = model2(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=1)
+    #history_2, elasped_loop_2, iterations_2, M, G = model2(alpha, theta, psi, phi, tdoa, var_tdoa, rho, d1, P, c, iterprint=1)
     
+    plot_results(config_SC.SV, config_SC.HV, sc, history_1, iterations_1,
+                 config_SC.Q_TRUE, config_SC.W_TRUE, fig_id=1)
+    plt.show()
 
 if __name__ == '__main__':
     main()

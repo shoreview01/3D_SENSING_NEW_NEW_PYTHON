@@ -13,7 +13,7 @@ MAX_ITER = 100        # max iterations for loop_step
 
 # Vehicle and scatterer geometry (example placeholders)
 SV = [0.0, 0.0, 0.0]  # sensing vehicle coordinates
-HV = [20.0, -15.0, 2.0]  # true hidden vehicle coordinates
+HV = [-20.0, 15.0, 2.0]  # true hidden vehicle coordinates
 
 '''[10.0, 0.0, 5 + 4*np.random.rand()],
     [17.5, 0.0, 5 + 4*np.random.rand()],
@@ -22,9 +22,10 @@ HV = [20.0, -15.0, 2.0]  # true hidden vehicle coordinates
     
 # Scatterer coordinates: list of four 3D points
 SCATTERERS = [
-    [10.0, 0.0, 5 + 4*np.random.rand()],
+    #[10.0, 5.0, 5 + 4*np.random.rand()],
+    [HV[0]/2, HV[1]/2, HV[2]/2],
     [17.5, 0.0, 5 + 4*np.random.rand()],
-    [17.5, .0, 5 + 4*np.random.rand()],
+    [17.5, 10.0, 5 + 4*np.random.rand()],
     [10.0, 10.0, 5 + 4*np.random.rand()]
 ]
 
